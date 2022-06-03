@@ -4,13 +4,15 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import g
 import os
 from sqlalchemy_utils import drop_database
+from sqlalchemy_utils.functions import create_database, database_exists
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 config = {
-    'SQLALCHEMY_DATABASE_URI' :'sqlite:///' + os.path.join(basedir, 'db_test.sqlite'),
+    'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + os.path.join(basedir, 'db_test.sqlite'),
     'SQLALCHEMY_TRACK_MODIFICATION': False,
     "TESTING": True,
 }
+
 
 @pytest.fixture(scope='session')
 def app():
@@ -20,22 +22,17 @@ def app():
     # clean up / reset resources here
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def appctx(app):
+    from application import db as db_
     with app.app_context():
         yield app
+        drop_database(str(db_.engine.url))
 
-@pytest.fixture(scope='function')
+
+@pytest.fixture(scope='module')
 def database(appctx):
-    # with app.app_context():
-    #     if 'db' not in g:
-    #         g.db =  SQLAlchemy(app)
-    #         g.db.create_all()
-    #     yield g.db
-    #     g.db.session.remove()
-    #     g.db.drop_all()
     from application import db as db_
-    from sqlalchemy_utils.functions import create_database, database_exists
     if not database_exists(str(db_.engine.url)):
         create_database(str(db_.engine.url))
     db_.create_all()
@@ -44,13 +41,11 @@ def database(appctx):
 
     db_.session.remove()
     db_.drop_all()
-        
+    db_.create_all()
+
 
 @pytest.fixture(scope='function')
-def db(database): 
-    print('*****SETUP*****')
-    
-    breakpoint()
+def db(database, appctx): 
     import sqlalchemy as sa
 
     connection = database.engine.connect()
@@ -76,11 +71,7 @@ def db(database):
     transaction.rollback()
     connection.close()
     database.session = old_session
-
-
-
     #drop_database(app.config['SQLALCHEMY_DATABASE_URI'])
-    
 
 
 @pytest.fixture()
