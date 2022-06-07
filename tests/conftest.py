@@ -18,7 +18,6 @@ config = {
 def app():
     app = create_app(config=config)
     return app
-
     # clean up / reset resources here
 
 
@@ -66,12 +65,11 @@ def db(database, appctx):
 
     yield database
 
-    print('*****FLUSH*****')
+    print('*****ROLL BACK*****')
     session.remove()
     transaction.rollback()
     connection.close()
     database.session = old_session
-    #drop_database(app.config['SQLALCHEMY_DATABASE_URI'])
 
 
 @pytest.fixture()
@@ -83,3 +81,21 @@ def client(app):
 @pytest.fixture()
 def runner(app):
     return app.test_cli_runner()
+
+
+@pytest.fixture()
+def repo_response():
+    return {
+        "response_code" : "",
+        "metadata":{}
+    }
+
+
+@pytest.fixture()
+def repo():
+    "Fake repo object"
+    return {}
+
+
+
+

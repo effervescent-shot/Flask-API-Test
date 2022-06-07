@@ -6,7 +6,7 @@ from application.models import Product
 def test_post_products(app, client):
     response = client.post("/product", json= {
     "name": "Test Pro 2",
-    "description": "ananinki ve de ebeninki",
+    "description": "Test description, basics.",
     "price": "35.00",
     "qty": "10"
 })

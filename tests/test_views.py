@@ -6,7 +6,7 @@ from application.models import Product
 def test_post_products(app, client):
     response = client.post("/product", json= {
         "name": "Test Pro",
-        "description": "ananinki ve de ebeninki",
+        "description": "Test decription",
         "price": "35.00",
         "qty": "10"
     })
@@ -22,4 +22,8 @@ def test_get_products(app, client):
 def test_add_db(app, db):
     result = db.session.query(Product).all()
     print("Views", result)
+    pass
+
+def test_data_repo(app, db, repo):
+    print(repo)
     pass
